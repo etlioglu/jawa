@@ -30,6 +30,7 @@ process REPORT {
 
     tag "Report from nfcore/differentialabundance"
 
+
     publishDir 'results', mode: 'copy'
 
     input:
@@ -45,10 +46,34 @@ process REPORT {
     """
 }
 
+process RESULT_TABLES {
+
+    tag "Differential/processed abundance tables from nfcore/differentialabundance"
+
+    publishDir 'results', mode: 'copy'
+
+    input:
+    path rnaseq
+    path diffabun
+
+    output:
+    path "annotated*"
+
+    script:
+    """
+    diffabun.py '${rnaseq}' '${diffabun}'
+    """
+}
+
+
+
 workflow {
 
     rnaseq_ch = Channel.fromPath(params.rnaseq, checkIfExists: true)
     COUNT_FILE(rnaseq_ch)
+
+    diffabun_ch = Channel.fromPath(params.diffabun, checkIfExists: true)
+    RESULT_TABLES(rnaseq_ch, diffabun_ch)
 
     report_ch = Channel.fromPath(params.diffabun, checkIfExists: true)
     REPORT(report_ch)
