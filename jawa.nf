@@ -5,6 +5,7 @@
  */
 
 params.rnaseq = null
+params.diffabun = null
 
 process COUNT_FILE {
 
@@ -25,8 +26,30 @@ process COUNT_FILE {
     """
 }
 
+process REPORT {
+
+    tag "Report from nfcore/differentialabundance"
+
+    publishDir 'results', mode: 'copy'
+
+    input:
+    path diffabun
+
+    output:
+    path 'report'
+
+    script:
+    def report_dir = "${diffabun}/report"
+    """
+    cp -r '${report_dir}' report
+    """
+}
+
 workflow {
 
     rnaseq_ch = Channel.fromPath(params.rnaseq, checkIfExists: true)
     COUNT_FILE(rnaseq_ch)
+
+    report_ch = Channel.fromPath(params.diffabun, checkIfExists: true)
+    REPORT(report_ch)
 }
