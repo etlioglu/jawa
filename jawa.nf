@@ -26,27 +26,9 @@ process COUNT_FILE {
     """
 }
 
-process REPORT {
-
-    tag "Report from nfcore/differentialabundance"
-
-
-    publishDir 'results', mode: 'copy'
-
-    input:
-    path diffabun
-
-    output:
-    path 'report'
-
-    script:
-    def report_dir = "${diffabun}/report"
-    """
-    cp -r '${report_dir}' report
-    """
-}
-
 process RESULT_TABLES {
+
+    container 'biocontainers/pandas:1.5.1_cv1'
 
     tag "Differential/processed abundance tables from nfcore/differentialabundance"
 
@@ -65,7 +47,24 @@ process RESULT_TABLES {
     """
 }
 
+process REPORT {
 
+    tag "Report from nfcore/differentialabundance"
+
+    publishDir 'results', mode: 'copy'
+
+    input:
+    path diffabun
+
+    output:
+    path 'report'
+
+    script:
+    def report_dir = "${diffabun}/report"
+    """
+    cp -r '${report_dir}' report
+    """
+}
 
 workflow {
 
